@@ -10,7 +10,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let video_subsystem = sdl_context.video()?;
 
     let window = video_subsystem
-        .window("rust-sdl3 demo: Video", 800, 600)
+        .window("EvoCell", 800, 600)
         .position_centered()
         .opengl()
         .build()
@@ -36,8 +36,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         canvas.clear();
         canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
-        // The rest of the game loop goes here...
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
     Ok(())
