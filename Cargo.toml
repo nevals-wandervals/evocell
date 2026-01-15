@@ -1,0 +1,9 @@
+[package]
+name = "evocell"
+version = "0.1.0"
+edition = "2024"
+authors = ["Nevals Wandervals <nevals.wandervals@yandex.ru>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[dependencies]
