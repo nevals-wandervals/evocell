@@ -1,3 +1,5 @@
+use crate::genome::Genome;
+
 pub type Family = usize;
 
 #[derive(Debug)]
@@ -7,6 +9,7 @@ pub struct Cell {
     pub health: f32,
     pub energy: f32,
     pub toxin: f32,
+    pub genome: Genome,
 }
 
 #[derive(Debug, Clone, Copy)]
