@@ -1,4 +1,5 @@
 use variant_count::VariantCount;
+use variantly::Variantly;
 
 use crate::{
     consts::COUNT_GENES,
@@ -29,6 +30,14 @@ impl Genome {
         if self.step >= self.inner.len() {
             self.step = 0;
         }
+
+        if self.is_stop_codon() {
+            self.step = 0;
+        }
+    }
+
+    fn is_stop_codon(&self) -> bool {
+        self.inner[self.step].is_stop()
     }
 }
 
@@ -40,13 +49,14 @@ impl Mutable for Genome {
     }
 }
 
-#[derive(Debug, Clone, Copy, VariantCount)]
+#[derive(Debug, Clone, Copy, VariantCount, Variantly)]
 pub enum Gene {
-    Move(Direction),
+    MovePosition(Direction),
     MoveEnergy(Direction),
     Reproduction(Direction),
     Synthesis(TypeSynthesis),
     Attack,
+    Stop,
 }
 
 impl Mutable for Gene {
@@ -61,11 +71,12 @@ impl GetRandomVariant for Gene {
     const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
     fn get_rand_variant(self) -> Self {
         match Self::gen_idx_variant() {
-            0 => Self::Move(Direction::Down.get_rand_variant()),
+            0 => Self::MovePosition(Direction::Down.get_rand_variant()),
             1 => Self::MoveEnergy(Direction::Down.get_rand_variant()),
             2 => Self::Reproduction(Direction::Down.get_rand_variant()),
             3 => Self::Synthesis(TypeSynthesis::Energy.get_rand_variant()),
             4 => Self::Attack,
+            5 => Self::Stop,
             _ => unimplemented!(),
         }
     }
@@ -77,7 +88,7 @@ impl Default for Gene {
     }
 }
 
-#[derive(Debug, Clone, Copy, VariantCount)]
+#[derive(Debug, Clone, Copy, VariantCount, Variantly)]
 pub enum TypeSynthesis {
     Energy,
     Toxin,
@@ -104,7 +115,7 @@ impl GetRandomVariant for TypeSynthesis {
     }
 }
 
-#[derive(Debug, Clone, Copy, VariantCount)]
+#[derive(Debug, Clone, Copy, VariantCount, Variantly)]
 pub enum Direction {
     Left,
     Top,
