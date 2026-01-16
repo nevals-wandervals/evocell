@@ -1,4 +1,4 @@
-use rand::Rng;
+use variant_count::VariantCount;
 
 use crate::{
     consts::COUNT_GENES,
@@ -40,7 +40,7 @@ impl Mutable for Genome {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, VariantCount)]
 pub enum Gene {
     Move(Direction),
     MoveEnergy(Direction),
@@ -58,9 +58,9 @@ impl Mutable for Gene {
 }
 
 impl GetRandomVariant for Gene {
+    const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
     fn get_rand_variant(self) -> Self {
-        let idx = rand::thread_rng().gen_range(0..5);
-        match idx {
+        match Self::gen_idx_variant()  {
             0 => Self::Move(Direction::Down.get_rand_variant()),
             1 => Self::MoveEnergy(Direction::Down.get_rand_variant()),
             2 => Self::Reproduction(Direction::Down.get_rand_variant()),
@@ -77,10 +77,11 @@ impl Default for Gene {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, VariantCount)]
 pub enum TypeSynthesis {
     Energy,
     Toxin,
+    Health
 }
 
 impl Mutable for TypeSynthesis {
@@ -92,17 +93,18 @@ impl Mutable for TypeSynthesis {
 }
 
 impl GetRandomVariant for TypeSynthesis {
+    const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
     fn get_rand_variant(self) -> Self {
-        let idx = rand::thread_rng().gen_range(0..3);
-        match idx {
+        match Self::gen_idx_variant() {
             0 => Self::Energy,
             1 => Self::Toxin,
+            2 => Self::Health,
             _ => unimplemented!(),
         }
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, VariantCount)]
 pub enum Direction {
     Left,
     Top,
@@ -119,9 +121,9 @@ impl Mutable for Direction {
 }
 
 impl GetRandomVariant for Direction {
+    const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
     fn get_rand_variant(self) -> Self {
-        let idx = rand::thread_rng().gen_range(0..4);
-        match idx {
+        match Self::gen_idx_variant()  {
             0 => Self::Left,
             1 => Self::Top,
             2 => Self::Right,

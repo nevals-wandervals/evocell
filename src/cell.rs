@@ -4,7 +4,9 @@ pub type Family = usize;
 pub struct Cell {
     pub marker: MarkerCell,
     pub lifetime: u32,
+    pub health: f32,
     pub energy: f32,
+    pub toxin: f32,
 }
 
 #[derive(Debug, Clone, Copy)]
