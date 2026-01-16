@@ -27,11 +27,7 @@ impl Genome {
 
     pub fn next(&mut self) {
         self.step += 1;
-        if self.step >= self.inner.len() {
-            self.step = 0;
-        }
-
-        if self.is_stop_codon() {
+        if self.step >= self.inner.len() || self.is_stop_codon() {
             self.step = 0;
         }
     }
