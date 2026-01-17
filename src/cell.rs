@@ -1,5 +1,3 @@
-use sdl3::pixels::Color;
-
 use crate::genome::Genome;
 
 pub type Family = usize;
@@ -11,7 +9,6 @@ pub struct Cell {
     pub health: f32,
     pub energy: f32,
     pub toxin: f32,
-    pub color: Color,
     pub genome: Genome,
 }
 
