@@ -9,8 +9,8 @@ use crate::{
 
 #[derive(Debug, Clone, Copy)]
 pub struct Genome {
-    pub step: usize,
-    pub inner: [Gene; COUNT_GENES],
+    step: usize,
+    inner: [Gene; COUNT_GENES],
 }
 
 impl Genome {
@@ -21,10 +21,12 @@ impl Genome {
         }
     }
 
-    pub fn get(&self) -> Gene {
-        self.inner[self.step]
+    #[inline]
+    pub fn get(&self) -> &Gene {
+        &self.inner[self.step]
     }
 
+    #[inline]
     pub fn next(&mut self) {
         self.step += 1;
         if self.step >= self.inner.len() || self.is_stop_codon() {
@@ -32,6 +34,7 @@ impl Genome {
         }
     }
 
+    #[inline]
     fn is_stop_codon(&self) -> bool {
         self.inner[self.step].is_stop()
     }
@@ -65,6 +68,7 @@ impl Mutable for Gene {
 
 impl GetRandomVariant for Gene {
     const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
+
     fn get_rand_variant(self) -> Self {
         match Self::gen_idx_variant() {
             0 => Self::MovePosition(Direction::Down.get_rand_variant()),
@@ -73,7 +77,7 @@ impl GetRandomVariant for Gene {
             3 => Self::Synthesis(TypeSynthesis::Energy.get_rand_variant()),
             4 => Self::Attack,
             5 => Self::Stop,
-            _ => unimplemented!(),
+            idx => panic!("Unknown variant index: {};", idx),
         }
     }
 }
@@ -101,12 +105,13 @@ impl Mutable for TypeSynthesis {
 
 impl GetRandomVariant for TypeSynthesis {
     const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
+
     fn get_rand_variant(self) -> Self {
         match Self::gen_idx_variant() {
             0 => Self::Energy,
             1 => Self::Toxin,
             2 => Self::Health,
-            _ => unimplemented!(),
+            idx => panic!("Unknown variant index: {};", idx),
         }
     }
 }
@@ -129,13 +134,14 @@ impl Mutable for Direction {
 
 impl GetRandomVariant for Direction {
     const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
+
     fn get_rand_variant(self) -> Self {
         match Self::gen_idx_variant() {
             0 => Self::Left,
             1 => Self::Top,
             2 => Self::Right,
             3 => Self::Down,
-            _ => unimplemented!(),
+            idx => panic!("Unknown variant index: {};", idx),
         }
     }
 }
