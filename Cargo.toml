@@ -7,12 +7,12 @@ license = "Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-# sdl3 = "0.17.3"
 rand = "0.8.2"
 variant_count = "1.2.0"
 variantly = "0.4.0"
 
 [features]
+default = ["sdl3"]
 sdl3 = ["dep:sdl3"]
 
 [dependencies.sdl3]
