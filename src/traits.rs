@@ -1,7 +1,7 @@
 use rand::Rng;
 
 pub trait Mutable {
-    fn mutate(&mut self);
+    fn mutate(&mut self) -> bool;
 }
 
 pub trait GetRandomVariant {

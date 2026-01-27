@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use crate::{cell::Cell, consts::RADIUS_PETRI_DISH, math::Position};
 
-const WIDTH: i32 = RADIUS_PETRI_DISH * 2;
-const HEIGHT: i32 = RADIUS_PETRI_DISH * 2;
+pub const WIDTH: i32 = RADIUS_PETRI_DISH * 2;
+pub const HEIGHT: i32 = RADIUS_PETRI_DISH * 2;
 
 pub struct World {
     active_cells: HashMap<Position, Cell>,
@@ -39,6 +39,14 @@ impl World {
         self.active_cells.iter()
     }
 
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = (&Position, &mut Cell)> {
+        self.active_cells.iter_mut()
+    }
+
+    pub fn count_cells(&self) -> usize {
+        self.active_cells.len()
+    }
+
     /// true - added
     /// false dont added
     pub fn add(&mut self, pos: Position, cell: Cell) -> bool {
@@ -61,7 +69,17 @@ impl World {
         f(&mut self.active_cells)
     }
 
-    fn update(&mut self) {
-        todo!()
+    pub fn update(&mut self) {
+        let mut poss: Vec<Position> = self.active_cells.keys().cloned().collect();
+        for pos in poss.iter_mut() {
+            let mut cell = self.active_cells.remove(&pos).unwrap();
+            cell.update(pos, self);
+
+            if !cell.is_alive() {
+                continue;
+            }
+
+            self.add(*pos, cell);
+        }
     }
 }

@@ -4,6 +4,7 @@ use variantly::Variantly;
 use crate::{
     consts::COUNT_GENES,
     etc::is_mutated,
+    math::Direction,
     traits::{GetRandomVariant, Mutable},
 };
 
@@ -18,11 +19,13 @@ impl Genome {
         let mut genes = [Gene::default(); COUNT_GENES];
         genes[0] = Gene::Synthesis(TypeSynthesis::Energy);
         genes[1] = Gene::Reproduction(Direction::Down);
-        genes[2] = Gene::Reproduction(Direction::Right);
-        genes[3] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[4] = Gene::Reproduction(Direction::Left);
-        genes[5] = Gene::Reproduction(Direction::Top);
-        genes[6] = Gene::Stop;
+        genes[2] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[3] = Gene::Reproduction(Direction::Right);
+        genes[4] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[5] = Gene::Reproduction(Direction::Left);
+        genes[6] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[7] = Gene::Reproduction(Direction::Top);
+        genes[8] = Gene::Stop;
 
         Self {
             step: 0,
@@ -50,10 +53,15 @@ impl Genome {
 }
 
 impl Mutable for Genome {
-    fn mutate(&mut self) {
+    fn mutate(&mut self) -> bool {
         if is_mutated() {
-            self.inner.iter_mut().for_each(|gene| gene.mutate());
+            self.inner.iter_mut().for_each(|gene| {
+                gene.mutate();
+            });
+            return true;
         }
+
+        false
     }
 }
 
@@ -68,10 +76,14 @@ pub enum Gene {
 }
 
 impl Mutable for Gene {
-    fn mutate(&mut self) {
+    fn mutate(&mut self) -> bool {
         if is_mutated() {
             *self = self.get_rand_variant();
+
+            return true;
         }
+
+        false
     }
 }
 
@@ -105,10 +117,13 @@ pub enum TypeSynthesis {
 }
 
 impl Mutable for TypeSynthesis {
-    fn mutate(&mut self) {
+    fn mutate(&mut self) -> bool {
         if is_mutated() {
             *self = self.get_rand_variant();
+            return true;
         }
+
+        false
     }
 }
 
@@ -120,36 +135,6 @@ impl GetRandomVariant for TypeSynthesis {
             0 => Self::Energy,
             1 => Self::Toxin,
             2 => Self::Health,
-            idx => panic!("Unknown variant index: {};", idx),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, VariantCount, Variantly)]
-pub enum Direction {
-    Left,
-    Top,
-    Right,
-    Down,
-}
-
-impl Mutable for Direction {
-    fn mutate(&mut self) {
-        if is_mutated() {
-            *self = self.get_rand_variant();
-        }
-    }
-}
-
-impl GetRandomVariant for Direction {
-    const VARIANT_COUNT: usize = Self::VARIANT_COUNT;
-
-    fn get_rand_variant(self) -> Self {
-        match Self::gen_idx_variant() {
-            0 => Self::Left,
-            1 => Self::Top,
-            2 => Self::Right,
-            3 => Self::Down,
             idx => panic!("Unknown variant index: {};", idx),
         }
     }

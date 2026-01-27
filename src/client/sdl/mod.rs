@@ -6,7 +6,7 @@ use crate::{
     cell::Cell,
     client::traits::{App, EventHandler},
     math::Position,
-    world::World,
+    world::{HEIGHT, WIDTH, World},
 };
 
 pub struct AppSdl {
@@ -49,27 +49,29 @@ impl App for AppSdl {
         self.canvas = Some(canvas);
         self.event_pump = Some(self.sdl_ctx.as_ref().unwrap().event_pump().unwrap());
 
-        self.world.add(Position::new(250, 250), Cell::new());
+        self.world.add(Position::new(50, 50), Cell::new());
 
         self
     }
 
     fn render(&mut self) {
         let canvas = self.canvas.as_mut().unwrap();
-
+        let _ = canvas.window_mut().set_title(format!("Cells count: {}", self.world.count_cells()).as_str());
         canvas.set_draw_color(Color::RGB(25, 25, 30));
         canvas.clear();
 
         for (pos, cell) in self.world.iter() {
             canvas.set_draw_color(cell.color);
-            canvas.fill_rect(Rect::new(pos.x(), pos.y(), 1, 1)).unwrap();
+            canvas.fill_rect(Rect::new(pos.x() + WIDTH, pos.y() + HEIGHT, 1, 1)).unwrap();
         }
 
         canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
-    fn update(&mut self) {}
+    fn update(&mut self) {
+        self.world.update();
+    }
 }
 
 impl EventHandler for AppSdl {
