@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Debug, Clone, Copy)]
 pub struct Genome {
-    step: usize,
+    pub step: usize,
     inner: [Gene; COUNT_GENES],
 }
 
@@ -18,14 +18,17 @@ impl Genome {
     pub fn new() -> Self {
         let mut genes = [Gene::default(); COUNT_GENES];
         genes[0] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[1] = Gene::Reproduction(Direction::Down);
-        genes[2] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[3] = Gene::Reproduction(Direction::Right);
+        genes[1] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[3] = Gene::Reproduction(Direction::Down);
         genes[4] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[5] = Gene::Reproduction(Direction::Left);
+        genes[5] = Gene::MoveEnergy(Direction::Right);
         genes[6] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[7] = Gene::Reproduction(Direction::Top);
-        genes[8] = Gene::Stop;
+        genes[7] = Gene::Reproduction(Direction::Right);
+        genes[8] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[9] = Gene::Reproduction(Direction::Left);
+        genes[10] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[11] = Gene::Reproduction(Direction::Top);
+        genes[12] = Gene::Stop;
 
         Self {
             step: 0,
@@ -41,27 +44,20 @@ impl Genome {
     #[inline]
     pub fn next(&mut self) {
         self.step += 1;
-        if self.step >= self.inner.len() || self.is_stop_codon() {
+        if self.step >= self.inner.len() {
             self.step = 0;
         }
-    }
-
-    #[inline]
-    fn is_stop_codon(&self) -> bool {
-        self.inner[self.step].is_stop()
     }
 }
 
 impl Mutable for Genome {
     fn mutate(&mut self) -> bool {
-        if is_mutated() {
-            self.inner.iter_mut().for_each(|gene| {
-                gene.mutate();
-            });
-            return true;
-        }
+        self.inner.iter_mut().for_each(|gene| {
+            gene.mutate();
+        });
+        self.step = 0;
 
-        false
+        true
     }
 }
 
@@ -71,8 +67,9 @@ pub enum Gene {
     MoveEnergy(Direction),
     Reproduction(Direction),
     Synthesis(TypeSynthesis),
-    Attack,
+    Attack(Direction),
     Stop,
+    None,
 }
 
 impl Mutable for Gene {
@@ -96,8 +93,9 @@ impl GetRandomVariant for Gene {
             1 => Self::MoveEnergy(Direction::Down.get_rand_variant()),
             2 => Self::Reproduction(Direction::Down.get_rand_variant()),
             3 => Self::Synthesis(TypeSynthesis::Energy.get_rand_variant()),
-            4 => Self::Attack,
+            4 => Self::Attack(Direction::Down.get_rand_variant()),
             5 => Self::Stop,
+            6 => Self::None,
             idx => panic!("Unknown variant index: {};", idx),
         }
     }
@@ -105,7 +103,7 @@ impl GetRandomVariant for Gene {
 
 impl Default for Gene {
     fn default() -> Self {
-        Self::Synthesis(TypeSynthesis::Energy)
+        Self::None
     }
 }
 

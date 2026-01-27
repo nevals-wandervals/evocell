@@ -16,6 +16,8 @@ pub struct AppSdl {
     canvas: Option<sdl3::render::Canvas<sdl3::video::Window>>,
     event_pump: Option<sdl3::EventPump>,
     world: World,
+    scale: i32,
+    mod_render: ModRender,
 }
 
 impl App for AppSdl {
@@ -27,6 +29,8 @@ impl App for AppSdl {
             canvas: None,
             event_pump: None,
             world: World::new(),
+            scale: 2,
+            mod_render: ModRender::Default,
         }
     }
 
@@ -56,13 +60,35 @@ impl App for AppSdl {
 
     fn render(&mut self) {
         let canvas = self.canvas.as_mut().unwrap();
-        let _ = canvas.window_mut().set_title(format!("Cells count: {}", self.world.count_cells()).as_str());
+        let _ = canvas
+            .window_mut()
+            .set_title(format!("Cells count: {}", self.world.count_cells()).as_str());
         canvas.set_draw_color(Color::RGB(25, 25, 30));
         canvas.clear();
 
         for (pos, cell) in self.world.iter() {
-            canvas.set_draw_color(cell.color);
-            canvas.fill_rect(Rect::new(pos.x() + WIDTH, pos.y() + HEIGHT, 1, 1)).unwrap();
+            match self.mod_render {
+                ModRender::Default => canvas.set_draw_color(cell.color),
+                ModRender::Energy => canvas.set_draw_color((
+                    (cell.energy * 10.0) as u8,
+                    (cell.energy * 10.0) as u8,
+                    (cell.energy * 10.0) as u8,
+                )),
+                ModRender::Toxin => canvas.set_draw_color((
+                    (cell.toxin * 10.0) as u8,
+                    (cell.toxin * 10.0) as u8,
+                    (cell.toxin * 10.0) as u8,
+                )),
+            }
+
+            canvas
+                .fill_rect(Rect::new(
+                    pos.x() * self.scale,
+                    pos.y() * self.scale,
+                    self.scale as u32,
+                    self.scale as u32,
+                ))
+                .unwrap();
         }
 
         canvas.present();
@@ -78,15 +104,27 @@ impl EventHandler for AppSdl {
     fn event_handler(&mut self) -> bool {
         for event in self.event_pump.as_mut().unwrap().poll_iter() {
             match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => return true,
+                Event::KeyDown { keycode, .. } => {
+                    if let Some(k) = keycode {
+                        match k.name().as_str() {
+                            "D" => self.mod_render = ModRender::Default,
+                            "E" => self.mod_render = ModRender::Energy,
+                            "T" => self.mod_render = ModRender::Toxin,
+                            _ => {}
+                        }
+                    }
+                }
+                Event::Quit { .. } => return true,
                 _ => {}
             }
         }
 
         false
     }
+}
+
+enum ModRender {
+    Default,
+    Energy,
+    Toxin,
 }
