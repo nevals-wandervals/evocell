@@ -1,8 +1,13 @@
 use std::time::Duration;
 
-use sdl3::{event::Event, keyboard::Keycode, pixels::Color};
+use sdl3::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
 
-use crate::client::traits::{App, EventHandler};
+use crate::{
+    cell::Cell,
+    client::traits::{App, EventHandler},
+    math::Position,
+    world::World,
+};
 
 pub struct AppSdl {
     pub title: &'static str,
@@ -10,6 +15,7 @@ pub struct AppSdl {
     video_subsystem: Option<sdl3::VideoSubsystem>,
     canvas: Option<sdl3::render::Canvas<sdl3::video::Window>>,
     event_pump: Option<sdl3::EventPump>,
+    world: World,
 }
 
 impl App for AppSdl {
@@ -20,6 +26,7 @@ impl App for AppSdl {
             video_subsystem: None,
             canvas: None,
             event_pump: None,
+            world: World::new(),
         }
     }
 
@@ -42,6 +49,8 @@ impl App for AppSdl {
         self.canvas = Some(canvas);
         self.event_pump = Some(self.sdl_ctx.as_ref().unwrap().event_pump().unwrap());
 
+        self.world.add(Position::new(250, 250), Cell::new());
+
         self
     }
 
@@ -50,6 +59,12 @@ impl App for AppSdl {
 
         canvas.set_draw_color(Color::RGB(25, 25, 30));
         canvas.clear();
+
+        for (pos, cell) in self.world.iter() {
+            canvas.set_draw_color(cell.color);
+            canvas.fill_rect(Rect::new(pos.x(), pos.y(), 1, 1)).unwrap();
+        }
+
         canvas.present();
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }

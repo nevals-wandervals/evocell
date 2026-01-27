@@ -15,9 +15,18 @@ pub struct Genome {
 
 impl Genome {
     pub fn new() -> Self {
+        let mut genes = [Gene::default(); COUNT_GENES];
+        genes[0] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[1] = Gene::Reproduction(Direction::Down);
+        genes[2] = Gene::Reproduction(Direction::Right);
+        genes[3] = Gene::Synthesis(TypeSynthesis::Energy);
+        genes[4] = Gene::Reproduction(Direction::Left);
+        genes[5] = Gene::Reproduction(Direction::Top);
+        genes[6] = Gene::Stop;
+
         Self {
             step: 0,
-            inner: [Gene::default(); COUNT_GENES],
+            inner: genes,
         }
     }
 

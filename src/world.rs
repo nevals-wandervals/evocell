@@ -1,78 +1,67 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use crate::{cell::Cell, consts::RADIUS_PETRI_DISH, math::Position};
 
-const WIDTH: usize = RADIUS_PETRI_DISH * 2;
-const HEIGHT: usize = RADIUS_PETRI_DISH * 2;
+const WIDTH: i32 = RADIUS_PETRI_DISH * 2;
+const HEIGHT: i32 = RADIUS_PETRI_DISH * 2;
 
 pub struct World {
-    active_cells: HashSet<Position>,
-    grid: [Option<Cell>; WIDTH * HEIGHT],
+    active_cells: HashMap<Position, Cell>,
+    width: i32,
+    height: i32,
 }
 
 impl World {
     pub fn new() -> Self {
         Self {
-            active_cells: HashSet::new(),
-            grid: [const { None }; _],
+            active_cells: HashMap::new(),
+            width: WIDTH,
+            height: HEIGHT,
         }
-    }
-
-    #[inline(always)]
-    pub fn is_valid_index(&self, index: usize) -> bool {
-        index < WIDTH * HEIGHT
     }
 
     #[inline(always)]
     pub fn is_valid_pos(&self, pos: Position) -> bool {
-        pos.x() < WIDTH && pos.y() < HEIGHT
-    }
-
-    /// Получение ячейки из сетки, может использоваться с `is_valid_*()` в случаях,
-    /// когда есть риск выхода за пределы или же чтобы убедиться, что данная ячейка крайняя.
-    #[inline(always)]
-    pub fn get(&self, index: usize) -> &Option<Cell> {
-        &self.grid[index]
+        pos.x() < self.width && pos.y() < self.height && pos.x() > 0 && pos.y() > 0
     }
 
     #[inline(always)]
-    pub fn get_mut(&mut self, index: usize) -> &mut Option<Cell> {
-        &mut self.grid[index]
+    pub fn get(&self, pos: Position) -> Option<&Cell> {
+        self.active_cells.get(&pos)
     }
 
     #[inline(always)]
-    pub fn get_by_pos(&self, pos: Position) -> &Option<Cell> {
-        &self.grid[pos.to_index()]
+    pub fn get_mut(&mut self, pos: Position) -> Option<&mut Cell> {
+        self.active_cells.get_mut(&pos)
     }
 
-    #[inline(always)]
-    pub fn get_mut_by_pos(&mut self, pos: Position) -> &mut Option<Cell> {
-        &mut self.grid[pos.to_index()]
+    pub fn iter(&self) -> impl Iterator<Item = (&Position, &Cell)> {
+        self.active_cells.iter()
     }
 
-    pub fn add(&mut self, pos: Position, cell: Cell) -> Result<(), Cell> {
+    /// true - added
+    /// false dont added
+    pub fn add(&mut self, pos: Position, cell: Cell) -> bool {
+        self.with_valid_pos(pos, |active_cells| active_cells.insert(pos, cell).is_none())
+    }
+
+    /// true - del
+    /// false - no del
+    pub fn del(&mut self, pos: Position) -> bool {
+        self.with_valid_pos(pos, |active_cells| active_cells.remove(&pos).is_some())
+    }
+
+    fn with_valid_pos<F>(&mut self, pos: Position, f: F) -> bool
+    where
+        F: FnOnce(&mut HashMap<Position, Cell>) -> bool,
+    {
         if !self.is_valid_pos(pos) {
-            return Err(cell);
+            return false;
         }
-
-        if self.active_cells.insert(pos) {
-            let idx = pos.to_index();
-            self.grid[idx] = Some(cell);
-            return Ok(());
-        }
-
-        Err(cell)
+        f(&mut self.active_cells)
     }
 
-    /// При попытки удалеения активной клетки, которой нет, или же позиция находится за пределами
-    /// массива, результат один `Err(())`.
-    /// Если нет вмешательств из вне, или в сам метод `del()`, то вызов `.unwrap()`, будет инвариантным.
-    pub fn del(&mut self, pos: Position) -> Result<Cell, ()> {
-        if self.active_cells.remove(&pos) {
-            let idx = pos.to_index();
-            return Ok(std::mem::take(&mut self.grid[idx]).unwrap());
-        }
-
-        Err(())
+    fn update(&mut self) {
+        todo!()
     }
 }
