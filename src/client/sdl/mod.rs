@@ -80,6 +80,11 @@ impl App for AppSdl {
                     (cell.toxin * 10.0) as u8,
                     (cell.toxin * 10.0) as u8,
                 )),
+                ModRender::Health => canvas.set_draw_color((
+                    (cell.health * 10.0) as u8,
+                    (cell.health * 10.0) as u8,
+                    (cell.health * 10.0) as u8,
+                )),
             }
 
             canvas
@@ -110,7 +115,7 @@ impl EventHandler for AppSdl {
                         match k.name().as_str() {
                             "D" => self.mod_render = ModRender::Default,
                             "E" => self.mod_render = ModRender::Energy,
-                            "T" => self.mod_render = ModRender::Toxin,
+                            "H" => self.mod_render = ModRender::Toxin,
                             _ => {}
                         }
                     }
@@ -128,4 +133,5 @@ enum ModRender {
     Default,
     Energy,
     Toxin,
+    Health,
 }

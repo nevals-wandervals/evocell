@@ -123,7 +123,7 @@ impl Cell {
                 match world.get_mut(*self_pos + direction) {
                     Some(cell) => {
                         if self.family != cell.family {
-                            let k = 1.0 * self.toxin;
+                            let k = 1. * self.health;
                             self.energy += k;
                             cell.energy -= k;
                             cell.health -= k;
@@ -146,7 +146,7 @@ impl Cell {
     }
 
     pub fn is_alive(&self) -> bool {
-        self.lifetime < self.max_lifetime && self.energy >= 1.3 //&& self.health > 5.0
+        self.lifetime < self.max_lifetime && self.energy >= 1.3 && self.energy < 1000.0 && self.health > 5.0
     }
 }
 
