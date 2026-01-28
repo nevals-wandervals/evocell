@@ -11,29 +11,37 @@ use crate::{
 #[derive(Debug, Clone, Copy)]
 pub struct Genome {
     pub step: usize,
+    step_for_add: usize,
     inner: [Gene; COUNT_GENES],
 }
 
 impl Genome {
     pub fn new() -> Self {
-        let mut genes = [Gene::default(); COUNT_GENES];
-        genes[0] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[1] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[3] = Gene::Reproduction(Direction::Down);
-        genes[4] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[5] = Gene::MoveEnergy(Direction::Right);
-        genes[6] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[7] = Gene::Reproduction(Direction::Right);
-        genes[8] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[9] = Gene::Reproduction(Direction::Left);
-        genes[10] = Gene::Synthesis(TypeSynthesis::Energy);
-        genes[11] = Gene::Reproduction(Direction::Top);
-        genes[12] = Gene::Stop;
-
-        Self {
+        let genome = Self {
             step: 0,
-            inner: genes,
-        }
+            step_for_add: 0,
+            inner: [Gene::default(); COUNT_GENES],
+        };
+
+        genome
+            .add_gene(Gene::Synthesis(TypeSynthesis::Energy))
+            .add_gene(Gene::Synthesis(TypeSynthesis::Energy))
+            .add_gene(Gene::Reproduction(Direction::Down))
+            .add_gene(Gene::Synthesis(TypeSynthesis::Energy))
+            .add_gene(Gene::MoveEnergy(Direction::Right))
+            .add_gene(Gene::Synthesis(TypeSynthesis::Energy))
+            .add_gene(Gene::Reproduction(Direction::Right))
+            .add_gene(Gene::Synthesis(TypeSynthesis::Energy))
+            .add_gene(Gene::Reproduction(Direction::Left))
+            .add_gene(Gene::Synthesis(TypeSynthesis::Energy))
+            .add_gene(Gene::Reproduction(Direction::Top))
+            .add_gene(Gene::Stop)
+    }
+
+    fn add_gene(mut self, gene: Gene) -> Self {
+        self.inner[self.step_for_add] = gene;
+        self.step_for_add += 1;
+        self
     }
 
     #[inline]
