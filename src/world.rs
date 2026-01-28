@@ -75,7 +75,7 @@ impl World {
             let mut cell = self.active_cells.remove(&pos).unwrap();
             cell.update(pos, self);
 
-            if !cell.is_alive() {
+            if cell.is_alive() {
                 self.add(*pos, cell);
             }
         }

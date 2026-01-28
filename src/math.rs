@@ -1,3 +1,4 @@
+use crate::pos;
 use variant_count::VariantCount;
 use variantly::Variantly;
 
@@ -68,38 +69,51 @@ impl Position {
 
 impl std::ops::AddAssign<Direction> for Position {
     fn add_assign(&mut self, rhs: Direction) {
-        match rhs {
-            Direction::Left => self.x -= 1,
-            Direction::Top => self.y -= 1,
-            Direction::Right => self.x += 1,
-            Direction::Down => self.y += 1,
-        }
+        let (x, y) = rhs.into();
+        self.x += x;
+        self.y += y;
     }
 }
 
 impl std::ops::Add<Direction> for Position {
     type Output = Position;
     fn add(self, rhs: Direction) -> Self::Output {
-        let (x, y) = match rhs {
-            Direction::Left => (-1, 0),
-            Direction::Top => (0, -1),
-            Direction::Right => (1, 0),
-            Direction::Down => (0, 1),
-        };
+        self + Into::<(i32, i32)>::into(rhs)
+    }
+}
 
-        Position {
-            x: self.x + x,
-            y: self.y + y,
-        }
+impl std::ops::Add<(i32, i32)> for Position {
+    type Output = Position;
+    fn add(self, rhs: (i32, i32)) -> Self::Output {
+        pos!(self.x + rhs.0, self.y + rhs.1)
     }
 }
 
 #[derive(Debug, Clone, Copy, VariantCount, Variantly)]
 pub enum Direction {
+    LeftDown,
     Left,
+    LeftTop,
     Top,
+    RightTop,
     Right,
+    RightDown,
     Down,
+}
+
+impl Into<(i32, i32)> for Direction {
+    fn into(self) -> (i32, i32) {
+        match self {
+            Direction::LeftDown => (-1, 1),
+            Direction::Left => (-1, 0),
+            Direction::LeftTop => (-1, -1),
+            Direction::Top => (0, -1),
+            Direction::RightTop => (1, -1),
+            Direction::Right => (1, 0),
+            Direction::RightDown => (1, 1),
+            Direction::Down => (0, 1),
+        }
+    }
 }
 
 impl Mutable for Direction {
@@ -118,10 +132,14 @@ impl GetRandomVariant for Direction {
 
     fn get_rand_variant(self) -> Self {
         match Self::gen_idx_variant() {
-            0 => Self::Left,
-            1 => Self::Top,
-            2 => Self::Right,
-            3 => Self::Down,
+            0 => Self::LeftDown,
+            1 => Self::Left,
+            2 => Self::LeftTop,
+            3 => Self::Top,
+            4 => Self::RightTop,
+            5 => Self::Right,
+            6 => Self::RightDown,
+            7 => Self::Down,
             idx => panic!("Unknown variant index: {};", idx),
         }
     }

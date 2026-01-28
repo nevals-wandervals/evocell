@@ -7,7 +7,7 @@ use crate::{
     client::traits::{App, EventHandler},
     math::Position,
     pos,
-    world::{HEIGHT, WIDTH, World},
+    world::World,
 };
 
 pub struct AppSdl {
