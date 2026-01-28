@@ -118,7 +118,7 @@ impl Into<(i32, i32)> for Direction {
 
 impl Mutable for Direction {
     fn mutate(&mut self) -> bool {
-        if is_mutated() {
+        if is_mutated(4.0) {
             *self = self.get_rand_variant();
             return true;
         }

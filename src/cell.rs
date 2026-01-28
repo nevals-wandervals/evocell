@@ -152,7 +152,7 @@ impl Cell {
 
 impl Mutable for Cell {
     fn mutate(&mut self) -> bool {
-        if is_mutated() {
+        if is_mutated(1.0) {
             self.genome.mutate();
             self.color = Self::rand_color();
             self.family = rand::thread_rng().gen_range(0..255u8);

@@ -93,7 +93,7 @@ pub enum Gene {
 
 impl Mutable for Gene {
     fn mutate(&mut self) -> bool {
-        if is_mutated() {
+        if is_mutated(10.0) {
             *self = self.get_rand_variant();
 
             return true;
@@ -135,7 +135,7 @@ pub enum TypeSynthesis {
 
 impl Mutable for TypeSynthesis {
     fn mutate(&mut self) -> bool {
-        if is_mutated() {
+        if is_mutated(10.0) {
             *self = self.get_rand_variant();
             return true;
         }
