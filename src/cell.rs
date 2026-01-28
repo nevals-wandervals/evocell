@@ -30,7 +30,7 @@ impl Cell {
             family: rand::thread_rng().gen_range(0..255u8),
             lifetime: 0,
             max_lifetime: 16,
-            health: 10.0,
+            health: 1.0,
             energy: 10.0,
             toxin: 0.0,
             color: (100, 100, 100),
@@ -123,7 +123,7 @@ impl Cell {
                 match world.get_mut(*self_pos + direction) {
                     Some(cell) => {
                         if self.family != cell.family {
-                            let k = 1. * self.health;
+                            let k = 3. * self.health;
                             self.energy += k;
                             cell.energy -= k;
                             cell.health -= k;
@@ -141,12 +141,15 @@ impl Cell {
             }
         }
         self.genome.next();
-        self.energy -= 0.003 * self.max_lifetime as f32;
+        self.energy -= 0.003 * self.max_lifetime as f32 * self.health;
         self.lifetime += 1;
     }
 
     pub fn is_alive(&self) -> bool {
-        self.lifetime < self.max_lifetime && self.energy >= 1.3 && self.energy < 1000.0 && self.health > 5.0
+        self.lifetime < self.max_lifetime
+            && self.energy >= 1.3
+            && self.energy < 1000.0
+            && self.health > 0.0
     }
 }
 

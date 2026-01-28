@@ -18,6 +18,7 @@ pub struct AppSdl {
     event_pump: Option<sdl3::EventPump>,
     world: World,
     scale: i32,
+    speed: usize,
     mod_render: ModRender,
 }
 
@@ -31,6 +32,7 @@ impl App for AppSdl {
             event_pump: None,
             world: World::new(),
             scale: 2,
+            speed: 1,
             mod_render: ModRender::Default,
         }
     }
@@ -61,9 +63,15 @@ impl App for AppSdl {
 
     fn render(&mut self) {
         let canvas = self.canvas.as_mut().unwrap();
-        let _ = canvas
-            .window_mut()
-            .set_title(format!("Cells count: {}", self.world.count_cells()).as_str());
+        let _ = canvas.window_mut().set_title(
+            format!(
+                "Cells count: {}; Mod render: {:?}; Speed: x{}",
+                self.world.count_cells(),
+                self.mod_render,
+                self.speed
+            )
+            .as_str(),
+        );
         canvas.set_draw_color(Color::RGB(25, 25, 30));
         canvas.clear();
 
@@ -98,11 +106,13 @@ impl App for AppSdl {
         }
 
         canvas.present();
-        // ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
     fn update(&mut self) {
-        self.world.update();
+        for _ in 0..self.speed {
+            self.world.update();
+        }
     }
 }
 
@@ -115,7 +125,14 @@ impl EventHandler for AppSdl {
                         match k.name().as_str() {
                             "D" => self.mod_render = ModRender::Default,
                             "E" => self.mod_render = ModRender::Energy,
-                            "H" => self.mod_render = ModRender::Toxin,
+                            "H" => self.mod_render = ModRender::Health,
+                            "1" => self.speed = 1,
+                            "2" => self.speed = 2,
+                            "3" => self.speed = 4,
+                            "4" => self.speed = 8,
+                            "5" => self.speed = 16,
+                            "6" => self.speed = 32,
+                            "7" => self.speed = 64,
                             _ => {}
                         }
                     }
@@ -129,6 +146,7 @@ impl EventHandler for AppSdl {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 enum ModRender {
     Default,
     Energy,
