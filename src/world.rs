@@ -76,10 +76,8 @@ impl World {
             cell.update(pos, self);
 
             if !cell.is_alive() {
-                continue;
+                self.add(*pos, cell);
             }
-
-            self.add(*pos, cell);
         }
     }
 }

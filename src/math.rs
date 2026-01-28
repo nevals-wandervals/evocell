@@ -126,3 +126,10 @@ impl GetRandomVariant for Direction {
         }
     }
 }
+
+#[macro_export]
+macro_rules! pos {
+    ($x:expr, $y:expr) => {
+        Position::new($x, $y)
+    };
+}

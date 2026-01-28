@@ -6,6 +6,7 @@ use crate::{
     cell::Cell,
     client::traits::{App, EventHandler},
     math::Position,
+    pos,
     world::{HEIGHT, WIDTH, World},
 };
 
@@ -53,7 +54,7 @@ impl App for AppSdl {
         self.canvas = Some(canvas);
         self.event_pump = Some(self.sdl_ctx.as_ref().unwrap().event_pump().unwrap());
 
-        self.world.add(Position::new(50, 50), Cell::new());
+        self.world.add(pos!(50, 50), Cell::new());
 
         self
     }
