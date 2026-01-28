@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use sdl3::{event::Event, keyboard::Keycode, pixels::Color, rect::Rect};
+use sdl3::{event::Event, pixels::Color, rect::Rect};
 
 use crate::{
     cell::Cell,
@@ -56,7 +56,7 @@ impl App for AppSdl {
         self.canvas = Some(canvas);
         self.event_pump = Some(self.sdl_ctx.as_ref().unwrap().event_pump().unwrap());
 
-        self.world.add(pos!(50, 50), Cell::new());
+        self.world.add(pos!(50, 100), Cell::new());
 
         self
     }

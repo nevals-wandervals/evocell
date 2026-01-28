@@ -7,14 +7,15 @@ use crate::{
     genome::{Genome, TypeSynthesis},
     math::{Direction, Position},
     traits::Mutable,
-    world::World,
+    world::{HEIGHT, World},
 };
 
 pub type Family = u8;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Cell {
     pub family: Family,
+    pub fixed: bool,
     pub lifetime: u32,
     pub max_lifetime: u32,
     pub health: f32,
@@ -27,6 +28,7 @@ pub struct Cell {
 impl Cell {
     pub fn new() -> Self {
         Self {
+            fixed: false,
             family: rand::thread_rng().gen_range(0..255u8),
             lifetime: 0,
             max_lifetime: 16,
@@ -79,30 +81,42 @@ impl Cell {
     }
 
     pub fn update_gravity(&mut self, self_pos: &mut Position, world: &mut World) {
-        let (l_pos, r_pos) = (*self_pos + Direction::LeftDown, *self_pos + Direction::RightDown);
-        let d_pos = *self_pos + Direction::Down;
-
-        if !world.is_valid_pos(d_pos) {
+        if self.fixed {
             return;
         }
 
+        let d_pos = *self_pos + Direction::Down;
+        let (l_pos, r_pos) = (
+            *self_pos + Direction::LeftDown,
+            *self_pos + Direction::RightDown,
+        );
         let (valid_l, valid_r) = (world.is_valid_pos(l_pos), world.is_valid_pos(r_pos));
 
-        if let None = world.get(d_pos) {
+        if world.is_valid_pos(d_pos)
+            && let None = world.get(d_pos)
+        {
             *self_pos = d_pos;
-        } else if valid_l  && let None = world.get(l_pos) {
-            if valid_r && let None = world.get(r_pos) {
-                let k = rand::thread_rng().gen_range(0..2u8);
-                match k {
-                    0 => *self_pos = l_pos,
-                    1 => *self_pos = r_pos,
-                    _=>{}
+            return;
+        }
+
+        let k = rand::thread_rng().gen_range(0..2u8);
+
+        match k {
+            0 => {
+                if valid_l && let None = world.get(l_pos) {
+                    *self_pos = l_pos;
+                } else if valid_r && let None = world.get(r_pos) {
+                    *self_pos = r_pos;
                 }
-            } else {
-                *self_pos = l_pos;
             }
-        } else if valid_r && let None = world.get(r_pos) {
-            *self_pos = r_pos;
+            1 => {
+                if valid_r && let None = world.get(r_pos) {
+                    *self_pos = r_pos;
+                } else if valid_l && let None = world.get(l_pos) {
+                    *self_pos = l_pos;
+                }
+            }
+            _ => {}
         }
     }
 
@@ -172,13 +186,12 @@ impl Cell {
             }
         }
         self.genome.next();
-        self.energy -= 0.003 * self.max_lifetime as f32 * self.health;
+        self.energy -= 0.003 * self.max_lifetime as f32 * self.health * ((HEIGHT - self_pos.y()) as f32 / 2.0);
         self.lifetime += 1;
     }
 
     pub fn is_alive(&self) -> bool {
-        self.lifetime < self.max_lifetime
-            && self.energy >= 1.3
+        self.energy >= 1.3
             && self.energy < 1000.0
             && self.health > 0.0
     }
@@ -188,6 +201,7 @@ impl Mutable for Cell {
     fn mutate(&mut self) -> bool {
         if is_mutated(1.0) {
             self.genome.mutate();
+            self.fixed = rand::thread_rng().gen_bool(crate::consts::PROBABILITY_OF_MUTATION);
             self.color = Self::rand_color();
             self.family = rand::thread_rng().gen_range(0..255u8);
             self.max_lifetime = rand::thread_rng().gen_range(0..1000);

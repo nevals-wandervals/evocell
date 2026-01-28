@@ -61,6 +61,15 @@ impl Genome {
     }
 
     #[inline]
+    pub fn get_mut(&mut self) -> &mut Gene {
+        &mut self.inner[self.step]
+    }
+
+    pub fn set(&mut self, index: usize, value: Gene) {
+        self.inner[index] = value;
+    }
+
+    #[inline]
     pub fn next(&mut self) {
         self.step += 1;
         if self.step >= self.inner.len() {
