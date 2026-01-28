@@ -5,7 +5,7 @@ use rand::Rng;
 use crate::{
     etc::is_mutated,
     genome::{Genome, TypeSynthesis},
-    math::Position,
+    math::{Direction, Position},
     traits::Mutable,
     world::World,
 };
@@ -53,6 +53,7 @@ impl Cell {
             self.toxin /= 2.0;
 
             let mut new_cell = self.clone();
+            new_cell.genome.step = 0;
             new_cell.mutate();
 
             return Some(new_cell);
@@ -77,7 +78,37 @@ impl Cell {
         }
     }
 
+    pub fn update_gravity(&mut self, self_pos: &mut Position, world: &mut World) {
+        let (l_pos, r_pos) = (*self_pos + Direction::LeftDown, *self_pos + Direction::RightDown);
+        let d_pos = *self_pos + Direction::Down;
+
+        if !world.is_valid_pos(d_pos) {
+            return;
+        }
+
+        let (valid_l, valid_r) = (world.is_valid_pos(l_pos), world.is_valid_pos(r_pos));
+
+        if let None = world.get(d_pos) {
+            *self_pos = d_pos;
+        } else if valid_l  && let None = world.get(l_pos) {
+            if valid_r && let None = world.get(r_pos) {
+                let k = rand::thread_rng().gen_range(0..2u8);
+                match k {
+                    0 => *self_pos = l_pos,
+                    1 => *self_pos = r_pos,
+                    _=>{}
+                }
+            } else {
+                *self_pos = l_pos;
+            }
+        } else if valid_r && let None = world.get(r_pos) {
+            *self_pos = r_pos;
+        }
+    }
+
     pub fn update(&mut self, self_pos: &mut Position, world: &mut World) {
+        self.update_gravity(self_pos, world);
+
         let gene = *self.genome.get();
         match gene {
             crate::genome::Gene::MovePosition(direction) => {
